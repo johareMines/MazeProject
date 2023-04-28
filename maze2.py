@@ -107,21 +107,32 @@ processedNodes = set()
 while processingQueue:
     currentNode = processingQueue.popleft()
 
-    
-    currentChar1 = currentNode[0]
-    currentChar2 = currentNode[1]
-    currentChar3 = currentNode[2]
-    currentChar4 = currentNode[3]
+    # Break up into good names
+    currentChar1, currentChar2, currentChar3, currentChar4 = currentNode
+
     print("\nCurrent node: " + str(currentChar1) + str(currentChar2) + str(currentChar3) + str(currentChar4))
 
     # Find all nodes that are attached to this node, add them to queue
-    for element in inputSet:
-        char1 = element[0]
-        char2 = element[1]
-        char3 = element[2]
-        char4 = element[3]
+    # Setup queue to iterate over to check all important nodes
+
+    iterateQueue = processingQueue.copy()
+    iterateQueue.extend(processedNodes)
+
+    print("\nITERATE QUEUE: " + str(iterateQueue) + "\n")
+
+    for element in iterateQueue:
+
+        # Break element into good vars
+        char1, char2, char3, char4 = element
+
         print(" - Comparing to  " + str(char1) + str(char2) + str(char3) + str(char4))
-        if (currentNode == element):
+
+        # Determine if equal
+
+        flippedElement = putCurrentVillageFront(element, char1, "Back")
+
+        # Ensure node can't map to itself
+        if (currentNode == element) or (currentNode == flippedElement):
             print("\tThese nodes are equal")
             continue
 
@@ -189,22 +200,22 @@ print("\n\nRunning BFS")
 
 
 # Traverse the graph using BFS
-start_node = ('A', 'B', 'B', 'L')
+# start_node = ('A', 'B', 'B', 'L')
 
-endNodes = set()
-endNodes.add(('E', 'B', 'G', 'S'))
-endNodes.add(('F', 'G', 'B', 'A'))
-queue = [(start_node, [start_node])]
-done = False
-while queue and not done:
-    (node, path) = queue.pop(0)
-    for neighbor in G.neighbors(node):
-        if neighbor in endNodes:
-            print("Path found:", path + [neighbor])
-            done = True
-            break
-        else:
-            queue.append((neighbor, path + [neighbor]))
+# endNodes = set()
+# endNodes.add(('E', 'B', 'G', 'S'))
+# endNodes.add(('F', 'G', 'B', 'A'))
+# queue = [(start_node, [start_node])]
+# done = False
+# while queue and not done:
+#     (node, path) = queue.pop(0)
+#     for neighbor in G.neighbors(node):
+#         if neighbor in endNodes:
+#             print("Path found:", path + [neighbor])
+#             done = True
+#             break
+#         else:
+#             queue.append((neighbor, path + [neighbor]))
     
 
 #     #G.add_edge(inputLine[0], inputLine[1], color=inputLine[2], type=inputLine[3])
