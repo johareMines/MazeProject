@@ -1,5 +1,6 @@
 import sys
 import networkx as nx
+from collections import defaultdict
 
 import time
 
@@ -33,10 +34,18 @@ for line in readFile:
 # Sort so alphabetically higher nodes get put into the processing queue sooner
 inputSet = sorted(inputSet)
 
-# print("Inputset after sorting")
-# for line in inputSet:
-#     print(line)
-# print("\n")
+print("Inputset after sorting")
+for line in inputSet:
+    print(line)
+print("\n")
+
+#Create adjacency list:
+adjacencyList = defaultdict(list)
+
+adjacencyList["one"].append("ABAB")
+adjacencyList["one"].append("CRET")
+
+print(adjacencyList["one"])
 
 
 
@@ -79,6 +88,9 @@ startNode = (startVillage, '?', None, None)
 endNode = (endVillage, '?', None, None)
 G.add_node(startNode)
 G.add_node(endNode)
+# print("Start node: " + str(startNode))
+# print("End node: " + str(endNode))
+
 # Add any edges attached to the start node to the processing queue
 # print("Considering which lines are edges attached to start node " + str(startNode))
 for element in inputSet:
@@ -132,6 +144,11 @@ while processingQueue:
         # Determine if equal
 
         flippedElement = putCurrentVillageFront(element, char1, "Back")
+
+        #Check if we're at the end
+        if (currentChar1 == endVillage):
+            G.add_edge(currentNode, endNode)
+            
 
         # Ensure node can't map to itself
         if (currentNode == element) or (currentNode == flippedElement):
@@ -205,12 +222,18 @@ totalTime = endTime - startTime
 #     # print(item[0])
 #     printString = printString + item[0] + ' '
 
-path = nx.shortest_path(G, startNode, endNode)
-if path is not None:
+
+try:
+    path = nx.shortest_path(G, startNode, endNode)
+    printString = ""
     printString = ' '.join(node[0] for node in path)
+    lastSpaceIndex = printString.rfind(" ")
+    if lastSpaceIndex != -1:
+        printString = printString[:lastSpaceIndex]
     print(printString)
-else:
+except:
     print("NO PATH")
+
 
 
 
