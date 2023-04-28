@@ -20,36 +20,6 @@ startVillage = inputLine[2]
 endVillage = inputLine[3]
 
 
-G = nx.DiGraph()
-inputSet = set()
-
-# Create set that holds all input data
-for line in readFile:
-    line = line.strip()
-
-    elements = tuple(line.split())
-
-    inputSet.add(elements)
-
-# Sort so alphabetically higher nodes get put into the processing queue sooner
-inputSet = sorted(inputSet)
-
-print("Inputset after sorting")
-for line in inputSet:
-    print(line)
-print("\n")
-
-#Create adjacency list:
-adjacencyList = defaultdict(list)
-
-adjacencyList["one"].append("ABAB")
-adjacencyList["one"].append("CRET")
-
-print(adjacencyList["one"])
-
-
-
-
 def putCurrentVillageFront(node, currentVillage, frontOrBack):
     char1, char2, char3, char4 = node
 
@@ -80,7 +50,32 @@ def putCurrentVillageFront(node, currentVillage, frontOrBack):
         # print("Current Village is not either village")
         return
 
+G = nx.DiGraph()
+inputSet = set()
 
+
+adjacencyList = defaultdict(list)
+
+# Create set that holds all input data
+for line in readFile:
+    line = line.strip()
+
+    elements = tuple(line.split())
+
+    inputSet.add(elements)
+
+    adjacencyList[elements[1]].append(elements)
+
+    reverseElement = putCurrentVillageFront(elements, elements[0], "Back")
+    adjacencyList[reverseElement[1]].append(reverseElement)
+
+
+
+for key in adjacencyList:
+    adjacencyList[key] = sorted(adjacencyList[key])
+
+# Sort so alphabetically higher nodes get put into the processing queue sooner
+inputSet = sorted(inputSet)
 
 
 processingQueue = deque()
@@ -88,8 +83,6 @@ startNode = (startVillage, '?', None, None)
 endNode = (endVillage, '?', None, None)
 G.add_node(startNode)
 G.add_node(endNode)
-# print("Start node: " + str(startNode))
-# print("End node: " + str(endNode))
 
 # Add any edges attached to the start node to the processing queue
 # print("Considering which lines are edges attached to start node " + str(startNode))
@@ -124,17 +117,12 @@ while processingQueue:
     # Break up into good names
     currentChar1, currentChar2, currentChar3, currentChar4 = currentNode
 
-    # print("\nCurrent node: " + str(currentChar1) + str(currentChar2) + str(currentChar3) + str(currentChar4))
+    # Only check nodes that have the possibility to be adjacent
+    nodeAdjacencies = adjacencyList[currentChar1]
 
-    # Find all nodes that are attached to this node, add them to queue
-    # Setup queue to iterate over to check all important nodes
+    # print("Current node: " + str(currentNode) + " | Adj list: " + str(nodeAdjacencies))
 
-    # iterateQueue = processingQueue.copy()
-    # iterateQueue.extend(processedNodes)
-
-    # print("\nITERATE QUEUE: " + str(iterateQueue) + "\n")
-
-    for element in inputSet:
+    for element in nodeAdjacencies:
 
         # Break element into good vars
         char1, char2, char3, char4 = element
@@ -142,7 +130,6 @@ while processingQueue:
         # print(" - Comparing to  " + str(char1) + str(char2) + str(char3) + str(char4))
 
         # Determine if equal
-
         flippedElement = putCurrentVillageFront(element, char1, "Back")
 
         #Check if we're at the end
@@ -155,13 +142,9 @@ while processingQueue:
             # print("\tThese nodes are equal")
             continue
 
-        ##############
-
         # Do I need to check edge color / type for this input?
         villageNeighbor1 = (currentChar1 == char1)
         villageNeighbor2 = (currentChar1 == char2)
-        # villageNeighbor3 = (currentChar2 == char2)
-        # villageNeighbor4 = (currentChar2 == char1)
 
         # print("\t" + str(villageNeighbor1) + " " + str(villageNeighbor2) + " " + str(villageNeighbor3) + " " + str(villageNeighbor4))
 
