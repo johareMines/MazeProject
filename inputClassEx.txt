@@ -1,7 +1,6 @@
 7 11 A G
 A B B L
 A C R L
-C A B D
 B C R A
 B D R L
 D E R L

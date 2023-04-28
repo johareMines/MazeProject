@@ -1,7 +1,11 @@
 import sys
 import networkx as nx
 
+import time
+
 from collections import deque
+
+startTime = time.time()
 
 inputData = set()
 
@@ -15,7 +19,7 @@ startVillage = inputLine[2]
 endVillage = inputLine[3]
 
 
-G = nx.Graph()
+G = nx.DiGraph()
 inputSet = set()
 
 # Create set that holds all input data
@@ -29,61 +33,63 @@ for line in readFile:
 # Sort so alphabetically higher nodes get put into the processing queue sooner
 inputSet = sorted(inputSet)
 
-print("Inputset after sorting")
-for line in inputSet:
-    print(line)
-print("\n")
+# print("Inputset after sorting")
+# for line in inputSet:
+#     print(line)
+# print("\n")
 
 
 
 
 def putCurrentVillageFront(node, currentVillage, frontOrBack):
-    print(node)
     char1, char2, char3, char4 = node
 
     # Ensure the operation can be conducted
     if currentVillage == char1:
         if frontOrBack == "Front":
-            print("Current already in front: " + str(node))
+            # print("Current already in front: " + str(node))
             return node
         else:
             #Flip
-            print("Flipping (Back), before: " + str(node))
+            # print("Flipping (Back), before: " + str(node))
             char2, char1 = char1, char2
             returnFormat = tuple([char1, char2, char3, char4])
-            print("After flip: " + str(returnFormat))
+            # print("After flip: " + str(returnFormat))
             return returnFormat
     elif currentVillage == char2:
         if frontOrBack == "Front":
             # Flip
-            print("Flipping (Front), before: " + str(node))
+            # print("Flipping (Front), before: " + str(node))
             char2, char1 = char1, char2
             returnFormat = tuple([char1, char2, char3, char4])
-            print("After flip: " + str(returnFormat))
+            # print("After flip: " + str(returnFormat))
             return returnFormat
         else:
-            print("Current already in back: " + str(node))
+            # print("Current already in back: " + str(node))
             return node
     else:
-        print("Current Village is not either village")
+        # print("Current Village is not either village")
         return
 
 
 
 
 processingQueue = deque()
-
+startNode = (startVillage, '?', None, None)
+endNode = (endVillage, '?', None, None)
+G.add_node(startNode)
+G.add_node(endNode)
 # Add any edges attached to the start node to the processing queue
-print("Considering which lines are edges attached to start node")
+# print("Considering which lines are edges attached to start node " + str(startNode))
 for element in inputSet:
     char1 = element[0]
     char2 = element[1]
-    print(" - Considering " + str(element) + " | " + char1 + " " + char2)
+    # print(" - Considering " + str(element) + " | " + char1 + " " + char2)
 
     char1Start = (char1 == startVillage)
     char2Start = (char2 == startVillage)
     if char1Start or char2Start:
-        print("\tStart path found, flipping")
+        # print("\tStart path found, flipping")
 
         # Ensure the start point isn't in front (after traveling the first edge, you're not standing on the start point)
         orderedElement = putCurrentVillageFront(element, startVillage, "Back")
@@ -91,15 +97,11 @@ for element in inputSet:
 
         processingQueue.append(orderedElement)
         G.add_node(orderedElement)
+        G.add_edge(startNode, orderedElement)
     
-print ("\nStarting queue:")
-print(processingQueue)
-print("\n")
-
-# print("\n\n")
-# for node in G:
-#     print (node)
-# print("\n\n")
+# print ("\nStarting queue:")
+# print(processingQueue)
+# print("\n")
 
 processedNodes = set()
 
@@ -110,22 +112,22 @@ while processingQueue:
     # Break up into good names
     currentChar1, currentChar2, currentChar3, currentChar4 = currentNode
 
-    print("\nCurrent node: " + str(currentChar1) + str(currentChar2) + str(currentChar3) + str(currentChar4))
+    # print("\nCurrent node: " + str(currentChar1) + str(currentChar2) + str(currentChar3) + str(currentChar4))
 
     # Find all nodes that are attached to this node, add them to queue
     # Setup queue to iterate over to check all important nodes
 
-    iterateQueue = processingQueue.copy()
-    iterateQueue.extend(processedNodes)
+    # iterateQueue = processingQueue.copy()
+    # iterateQueue.extend(processedNodes)
 
-    print("\nITERATE QUEUE: " + str(iterateQueue) + "\n")
+    # print("\nITERATE QUEUE: " + str(iterateQueue) + "\n")
 
-    for element in iterateQueue:
+    for element in inputSet:
 
         # Break element into good vars
         char1, char2, char3, char4 = element
 
-        print(" - Comparing to  " + str(char1) + str(char2) + str(char3) + str(char4))
+        # print(" - Comparing to  " + str(char1) + str(char2) + str(char3) + str(char4))
 
         # Determine if equal
 
@@ -133,67 +135,87 @@ while processingQueue:
 
         # Ensure node can't map to itself
         if (currentNode == element) or (currentNode == flippedElement):
-            print("\tThese nodes are equal")
+            # print("\tThese nodes are equal")
             continue
+
+        ##############
 
         # Do I need to check edge color / type for this input?
         villageNeighbor1 = (currentChar1 == char1)
         villageNeighbor2 = (currentChar1 == char2)
-        villageNeighbor3 = (currentChar2 == char2)
-        villageNeighbor4 = (currentChar2 == char1)
+        # villageNeighbor3 = (currentChar2 == char2)
+        # villageNeighbor4 = (currentChar2 == char1)
 
         # print("\t" + str(villageNeighbor1) + " " + str(villageNeighbor2) + " " + str(villageNeighbor3) + " " + str(villageNeighbor4))
 
-        if villageNeighbor1 or villageNeighbor2 or villageNeighbor3 or villageNeighbor4:
+        if villageNeighbor1 or villageNeighbor2:
 
             # Check if legal path, if so, add edge
             if (currentChar3 == char3) or (currentChar4 == char4):
-                similarChar = ''
-                if villageNeighbor1 or villageNeighbor2:
-                    similarChar = currentChar1
-                elif villageNeighbor3 or villageNeighbor4:
-                    similarChar = currentChar2
                 
+                properElement = element
+                # Format it so the new node has the new village first
+                if villageNeighbor1:
+                    # Node is not formatted correctly, flip
+                    properElement = flippedElement
+                    #formattedElement = putCurrentVillageFront(element, char1, "Back")
+                    
+                # print("Proper Element is: " + str(properElement))
 
-                print("\tThe similar village is: " + str(similarChar))
+
+                #print("\tThe similar village is: " + str(similarChar))
 
                 # Handle differently if node hasn't been seen before
-                if element in G.nodes:
-                    print("\tThis element was already discovered")
-                    G.add_edge(currentNode, element)
+                if properElement in G.nodes:
+                    # print("\tThis element was already discovered, adding edge (if needed)")
+                    G.add_edge(currentNode, properElement)
                 else:
-                    print("\tThis node has been added to the graph and to the processing queue")
-                    G.add_node(element)
-                    G.add_edge(currentNode, element)
-                    processingQueue.append(element)
+                    # print("\tThis node has been added to the graph and to the processing queue")
+                    G.add_node(properElement)
+                    G.add_edge(currentNode, properElement)
+                    processingQueue.append(properElement)
+                    if properElement[0] == endVillage:
+                        # This node is an endpoint, link it to the end node
+                        G.add_edge(properElement, endNode)
+
+                    
 
 
     # Current node finished being processed
     processedNodes.add(currentNode)
-    print(str(currentNode)+ " Finished processing. The queue is: " + str(processingQueue))
-    print("The Processed Set is: " + str(processedNodes))
+    # print(str(currentNode)+ " Finished processing. The queue is: " + str(processingQueue))
+    # print("The Processed Set is: " + str(processedNodes))
 
-print("\n")
-processedNodes = sorted(processedNodes)
-if processedNodes == inputSet:
-    print("All nodes were processed.")
+# print("\n")
+# print(G)
+# print("Nodes: " + str(sorted(G.nodes)))
+# print("\nEdges: " + str(sorted(G.edges)))
 
+
+# print("\n\nRunning BFS")
+
+
+endTime = time.time()
+totalTime = endTime - startTime
+# print("Total time taken: {:.2f} seconds".format(totalTime))
+
+
+# printString = ""
+# for item in path:
+#     # print(item[0])
+#     printString = printString + item[0] + ' '
+
+path = nx.shortest_path(G, startNode, endNode)
+if path is not None:
+    printString = ' '.join(node[0] for node in path)
+    print(printString)
 else:
-
-    for node in inputSet:
-        if node not in processedNodes:
-            print("Node " + str(node) + " not processed.")
-        print("\t" + str(node))
-    for i in inputSet:
-        print("\t" + str(i))
-
-print("\n")
-print(G)
-print("Nodes: " + str(sorted(G.nodes)))
-print("\nEdges: " + str(sorted(G.edges)))
+    print("NO PATH")
 
 
-print("\n\nRunning BFS")
+
+# print(printString)
+    
 # BFS = nx.bfs_edges(G, ('A', 'B', 'B', 'L'))
 
 # print(list(BFS))
