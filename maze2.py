@@ -158,12 +158,8 @@ while processingQueue:
                 if villageNeighbor1:
                     # Node is not formatted correctly, flip
                     properElement = flippedElement
-                    #formattedElement = putCurrentVillageFront(element, char1, "Back")
                     
                 # print("Proper Element is: " + str(properElement))
-
-
-                #print("\tThe similar village is: " + str(similarChar))
 
                 # Handle differently if node hasn't been seen before
                 if properElement in G.nodes:
@@ -183,6 +179,7 @@ while processingQueue:
 
     # Current node finished being processed
     processedNodes.add(currentNode)
+
     # print(str(currentNode)+ " Finished processing. The queue is: " + str(processingQueue))
     # print("The Processed Set is: " + str(processedNodes))
 
@@ -191,19 +188,9 @@ while processingQueue:
 # print("Nodes: " + str(sorted(G.nodes)))
 # print("\nEdges: " + str(sorted(G.edges)))
 
-
-# print("\n\nRunning BFS")
-
-
 endTime = time.time()
 totalTime = endTime - startTime
 # print("Total time taken: {:.2f} seconds".format(totalTime))
-
-
-# printString = ""
-# for item in path:
-#     # print(item[0])
-#     printString = printString + item[0] + ' '
 
 
 try:
@@ -216,48 +203,3 @@ try:
     print(printString)
 except:
     print("NO PATH")
-
-
-
-
-# print(printString)
-    
-# BFS = nx.bfs_edges(G, ('A', 'B', 'B', 'L'))
-
-# print(list(BFS))
-
-
-# Traverse the graph using BFS
-# start_node = ('A', 'B', 'B', 'L')
-
-# endNodes = set()
-# endNodes.add(('E', 'B', 'G', 'S'))
-# endNodes.add(('F', 'G', 'B', 'A'))
-# queue = [(start_node, [start_node])]
-# done = False
-# while queue and not done:
-#     (node, path) = queue.pop(0)
-#     for neighbor in G.neighbors(node):
-#         if neighbor in endNodes:
-#             print("Path found:", path + [neighbor])
-#             done = True
-#             break
-#         else:
-#             queue.append((neighbor, path + [neighbor]))
-    
-
-#     #G.add_edge(inputLine[0], inputLine[1], color=inputLine[2], type=inputLine[3])
-
-
-#     inputLine = readFile.readline()
-# add data to graph
-    # if inputLine[0] not in G.nodes:
-    #     G.add_node(inputLine[0])
-    # if inputLine[1] not in G.nodes:
-    #     G.add_node(inputLine[1])
-
-#G.add_node(str(inputLine))
-
-
-# for node in G.nodes:
-#     print(node)
