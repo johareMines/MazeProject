@@ -14,8 +14,6 @@ readFile = open(sys.argv[1])
 
 inputLine = readFile.readline().split()
 
-villageQuantity = inputLine[0]
-transitQuantity = inputLine[1]
 startVillage = inputLine[2]
 endVillage = inputLine[3]
 
@@ -53,7 +51,6 @@ def putCurrentVillageFront(node, currentVillage, frontOrBack):
 G = nx.DiGraph()
 inputSet = set()
 
-
 adjacencyList = defaultdict(list)
 
 # Create set that holds all input data
@@ -64,11 +61,12 @@ for line in readFile:
 
     inputSet.add(elements)
 
+    # For ex ABBL, dict[b] now holds ABBL - when standing on B, you can reach ABBL
     adjacencyList[elements[1]].append(elements)
 
+    # BABL, dict[a] holds BABL
     reverseElement = putCurrentVillageFront(elements, elements[0], "Back")
     adjacencyList[reverseElement[1]].append(reverseElement)
-
 
 
 for key in adjacencyList:
@@ -108,8 +106,6 @@ for element in inputSet:
 # print(processingQueue)
 # print("\n")
 
-processedNodes = set()
-
 # Loop until empty
 while processingQueue:
     currentNode = processingQueue.popleft()
@@ -142,64 +138,77 @@ while processingQueue:
             # print("\tThese nodes are equal")
             continue
 
-        # Do I need to check edge color / type for this input?
+
         villageNeighbor1 = (currentChar1 == char1)
-        villageNeighbor2 = (currentChar1 == char2)
 
-        # print("\t" + str(villageNeighbor1) + " " + str(villageNeighbor2) + " " + str(villageNeighbor3) + " " + str(villageNeighbor4))
-
-        if villageNeighbor1 or villageNeighbor2:
-
-            # Check if legal path, if so, add edge
-            if (currentChar3 == char3) or (currentChar4 == char4):
+        # Check if legal path, if so, add edge
+        if (currentChar3 == char3) or (currentChar4 == char4):
                 
-                properElement = element
-                # Format it so the new node has the new village first
-                if villageNeighbor1:
-                    # Node is not formatted correctly, flip
-                    properElement = flippedElement
+            properElement = element
+            # Format it so the new node has the new village first
+            if villageNeighbor1:
+                # Node is not formatted correctly, flip
+                properElement = flippedElement
                     
-                # print("Proper Element is: " + str(properElement))
+            # print("Proper Element is: " + str(properElement))
 
-                # Handle differently if node hasn't been seen before
-                if properElement in G.nodes:
-                    # print("\tThis element was already discovered, adding edge (if needed)")
-                    G.add_edge(currentNode, properElement)
-                else:
-                    # print("\tThis node has been added to the graph and to the processing queue")
-                    G.add_node(properElement)
-                    G.add_edge(currentNode, properElement)
-                    processingQueue.append(properElement)
-                    if properElement[0] == endVillage:
-                        # This node is an endpoint, link it to the end node
-                        G.add_edge(properElement, endNode)
+            # Handle differently if node hasn't been seen before
+            if properElement in G.nodes:
+                # print("\tThis element was already discovered, adding edge (if needed)")
+                G.add_edge(currentNode, properElement)
+            else:
+                # print("\tThis node has been added to the graph and to the processing queue")
+                G.add_node(properElement)
+                G.add_edge(currentNode, properElement)
+                processingQueue.append(properElement)
+                if properElement[0] == endVillage:
+                    # This node is an endpoint, link it to the end node
+                    G.add_edge(properElement, endNode)
 
                     
 
 
     # Current node finished being processed
-    processedNodes.add(currentNode)
 
-    # print(str(currentNode)+ " Finished processing. The queue is: " + str(processingQueue))
-    # print("The Processed Set is: " + str(processedNodes))
 
-# print("\n")
-# print(G)
-# print("Nodes: " + str(sorted(G.nodes)))
-# print("\nEdges: " + str(sorted(G.edges)))
 
 endTime = time.time()
 totalTime = endTime - startTime
 # print("Total time taken: {:.2f} seconds".format(totalTime))
 
 
-try:
-    path = nx.shortest_path(G, startNode, endNode)
+
+if nx.has_path(G, startNode, endNode):
+    allPaths = nx.all_shortest_paths(G, startNode, endNode)
+
+
+    #Setup print format
+    pathsOrdered = []
+    for path in allPaths:
+        pathChars = []
+        for letters in path:
+
+            villageChars = letters[:2]
+            pathChars.append(villageChars)
+        
+        pathsOrdered.append(pathChars)
+
+    
+    pathsOrdered = sorted(pathsOrdered)
+    bestAlphabetPath = pathsOrdered[0]
+
     printString = ""
-    printString = ' '.join(node[0] for node in path)
+    printString = ' '.join(node[0] for node in bestAlphabetPath)
     lastSpaceIndex = printString.rfind(" ")
     if lastSpaceIndex != -1:
         printString = printString[:lastSpaceIndex]
     print(printString)
-except:
+
+        
+else:
     print("NO PATH")
+
+
+
+
+
